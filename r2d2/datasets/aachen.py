@@ -77,14 +77,14 @@ class AachenPairs_StyleTransferDayNight (AachenImages_DB, StillPairDataset):
 class AachenPairs_OpticalFlow (AachenImages_DB, PairDataset):
     """ Image pairs from Aachen db with optical flow.
     """
-    def __init__(self, root='data/aachen/optical_flow', **kw):
+    def __init__(self, root='data/aachen', flow='optical_flow', **kw):
         PairDataset.__init__(self)
-        AachenImages_DB.__init__(self, **kw)
-        self.root_flow = root
+        AachenImages_DB.__init__(self, root=root, **kw)
+        self.root_flow = os.path.join(root, flow)
 
         # find out the subsest of valid pairs from the list of flow files
-        flows = {f for f in os.listdir(os.path.join(root, 'flow')) if f.endswith('.png')}
-        masks = {f for f in os.listdir(os.path.join(root, 'mask')) if f.endswith('.png')}
+        flows = {f for f in os.listdir(os.path.join(self.root_flow, 'flow')) if f.endswith('.png')}
+        masks = {f for f in os.listdir(os.path.join(self.root_flow, 'mask')) if f.endswith('.png')}
         assert flows == masks, 'Missing flow or mask pairs'
         
         make_pair = lambda f: tuple(self.db_image_idxs[v] for v in f[:-4].split('_'))
