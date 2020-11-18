@@ -3,10 +3,11 @@
 # Available only for non-commercial use
 
 import pdb
+
 import torch.nn as nn
 import torch.nn.functional as F
 
-from nets.ap_loss import APLoss
+from .ap_loss import APLoss
 
 
 class PixelAPLoss (nn.Module):

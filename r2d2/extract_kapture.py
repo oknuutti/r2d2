@@ -5,11 +5,11 @@
 
 from PIL import Image
 
-from tools import common
-from tools.dataloader import norm_RGB
-from nets.patchnet import *
+from .tools import common
+from .tools.dataloader import norm_RGB
+from .nets.patchnet import *
 
-from extract import load_network, NonMaxSuppression, extract_multiscale
+from .extract import load_network, NonMaxSuppression, extract_multiscale
 
 # Kapture is a pivot file format, based on text and binary files, used to describe SfM (Structure From Motion) and more generally sensor-acquired data
 # it can be installed with

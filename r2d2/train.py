@@ -6,10 +6,10 @@ import os, pdb
 import torch
 import torch.optim as optim
 
-from tools import common, trainer
-from tools.dataloader import *
-from nets.patchnet import *
-from nets.losses import *
+from .tools import common, trainer
+from .tools.dataloader import *
+from .nets.patchnet import *
+from .nets.losses import *
 
 default_net = "Quad_L2Net_ConfCFS()"
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
     common.mkdir_for(args.save_path)
 
     # Create data loader
-    from datasets import *
+    from .datasets import *
     db = [data_sources[key] for key in args.train_data]
     db = eval(args.data_loader.replace('`data`',','.join(db)).replace('\n',''))
     print("Training image database =", db)

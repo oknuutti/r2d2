@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from nets.sampler import FullSampler
+from .sampler import FullSampler
 
 class CosimLoss (nn.Module):
     """ Try to make the repeatability repeatable from one image to the other.
@@ -30,7 +30,7 @@ class CosimLoss (nn.Module):
         # normalize
         sali1, sali2 = repeatability
         grid = FullSampler._aflow_to_grid(aflow)
-        sali2 = F.grid_sample(sali2, grid, mode='bilinear', padding_mode='border')
+        sali2 = F.grid_sample(sali2, grid, mode='bilinear', padding_mode='border', align_corners=False)
 
         patches1 = self.extract_patches(sali1)
         patches2 = self.extract_patches(sali2)

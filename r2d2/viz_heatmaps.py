@@ -17,10 +17,10 @@ def transparent(img, alpha, cmap, **kw):
     colored_img[:,:,-1] = alpha
     return colored_img
 
-from tools import common
-from tools.dataloader import norm_RGB
-from nets.patchnet import *
-from extract import NonMaxSuppression
+from .tools import common
+from .tools.dataloader import norm_RGB
+from .nets.patchnet import *
+from .extract import NonMaxSuppression
 
 
 if __name__ == '__main__':

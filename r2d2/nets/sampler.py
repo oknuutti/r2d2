@@ -47,9 +47,9 @@ class FullSampler(nn.Module):
         # warp img2 to img1
         grid = self._aflow_to_grid(aflow)
         ones2 = feat2.new_ones(feat2[:,0:1].shape)
-        feat2to1 = F.grid_sample(feat2, grid, mode=self.mode, padding_mode=self.padding)
-        mask2to1 = F.grid_sample(ones2, grid, mode='nearest', padding_mode='zeros')
-        conf2to1 = F.grid_sample(conf2, grid, mode=self.mode, padding_mode=self.padding) \
+        feat2to1 = F.grid_sample(feat2, grid, mode=self.mode, padding_mode=self.padding, align_corners=False)
+        mask2to1 = F.grid_sample(ones2, grid, mode='nearest', padding_mode='zeros', align_corners=False)
+        conf2to1 = F.grid_sample(conf2, grid, mode=self.mode, padding_mode=self.padding, align_corners=False) \
                    if confs else None
         return feat2to1, mask2to1.byte(), conf2to1
 
@@ -63,7 +63,7 @@ class FullSampler(nn.Module):
         XY = XY[None].expand(B, 2, H, W).float()
         
         grid = self._aflow_to_grid(aflow)
-        XY2 = F.grid_sample(XY, grid, mode='bilinear', padding_mode='zeros')
+        XY2 = F.grid_sample(XY, grid, mode='bilinear', padding_mode='zeros', align_corners=False)
         return XY, XY2
 
 
@@ -259,7 +259,7 @@ class NghSampler2 (nn.Module):
     In both cases, the number of query points is = W*H/subq**2
     """
     def __init__(self, ngh, subq=1, subd=1, pos_d=0, neg_d=2, border=None,
-                       maxpool_pos=True, subd_neg=0):
+                       maxpool_pos=True, subd_neg=0, max_neg_b=None):   # --EDITED: added "max_neg_b=None"
         nn.Module.__init__(self)
         assert 0 <= pos_d < neg_d <= (ngh if ngh else 99)
         self.ngh = ngh
@@ -270,6 +270,7 @@ class NghSampler2 (nn.Module):
         self.sub_q = subq
         self.sub_d = subd
         self.sub_d_neg = subd_neg
+        self.max_neg_b = max_neg_b          # --EDITED: added this line
         if border is None: border = ngh
         assert border >= ngh, 'border has to be larger than ngh'
         self.border = border
@@ -294,8 +295,11 @@ class NghSampler2 (nn.Module):
         self.register_buffer('pos_offsets', torch.LongTensor(pos).view(-1,2).t())
         self.register_buffer('neg_offsets', torch.LongTensor(neg).view(-1,2).t())
 
-    def gen_grid(self, step, aflow):
+    def gen_grid(self, step, aflow, max_b=None):
         B, two, H, W = aflow.shape
+        if max_b is not None:
+            B = min(max_b, B)       # --EDITED: added these two lines
+
         dev = aflow.device
         b1 = torch.arange(B, device=dev)
         if step > 0:
@@ -361,7 +365,7 @@ class NghSampler2 (nn.Module):
 
         if self.sub_d_neg:
             # add distractors from a grid
-            b3, y3, x3, _ = self.gen_grid(self.sub_d_neg, aflow)
+            b3, y3, x3, _ = self.gen_grid(self.sub_d_neg, aflow, max_b=self.max_neg_b)
             distractors = feat2[b3, :, y3, x3]
             dscores = torch.matmul(feat1, distractors.t())
             del distractors
@@ -369,14 +373,14 @@ class NghSampler2 (nn.Module):
             # remove scores that corresponds to positives or nulls
             dis2 = (x3 - xy2[0][:,None])**2 + (y3 - xy2[1][:,None])**2
             dis2 += (b3 != b2[:,None]).long() * self.neg_d**2
-            dscores[dis2 < self.neg_d**2] = 0
-            
+            dscores[dis2 < self.neg_d**2] = 0  # -- EDITED: TODO: figure out if this is ok or not as extra positives included with label 0
+
             scores = torch.cat((pscores, nscores, dscores), dim=1)
         else:
             # concat everything
             scores = torch.cat((pscores, nscores), dim=1)
 
-        gt = scores.new_zeros(scores.shape, dtype=torch.uint8)
+        gt = scores.new_zeros(scores.shape, dtype=torch.bool)
         gt[:, :pscores.shape[1]] = 1
 
         return scores, gt, mask, qconf
