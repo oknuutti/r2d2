@@ -130,7 +130,7 @@ class AachenPairs_OpticalFlow (AachenImages_DB, PairDataset):
             flow = self._flow2png(flow, fname)
 
         if not self.npy and not isinstance(self.npy, bool):
-            self.save_npy(fname[:-4] + '.npy', flow)
+            self.save_npy(fname[:-4] + '.npy', flow.astype(np.float16))
 
         return flow
     

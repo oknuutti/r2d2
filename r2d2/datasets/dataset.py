@@ -39,9 +39,10 @@ class Dataset(object):
     def get_image(self, img_idx):
         fname = self.get_filename(img_idx)
         try:
-            if fname[-4:] == '.npy':
-                return self.load_npy(fname)
             from PIL import Image
+            if fname[-4:] == '.npy':
+                arr = self.load_npy(fname)
+                return Image.fromarray(arr)
             img = Image.open(fname).convert('RGB')
         except Exception as e:
             raise IOError("Could not load image %s (reason: %s)" % (fname, str(e)))
@@ -51,7 +52,7 @@ class Dataset(object):
         if not npy and not isinstance(npy, bool):
             if not rgb:
                 img = img.convert('L')
-            self.save_npy(fname[:-4] + '.npy', img)
+            self.save_npy(fname[:-4] + '.npy', np.array(img, dtype=np.uint8))
 
         return img
 
