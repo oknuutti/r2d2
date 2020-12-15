@@ -24,13 +24,34 @@ class Dataset(object):
     def get_filename(self, img_idx, root=None):
         return os.path.join(root or self.root, self.img_dir, self.get_key(img_idx))
 
+    @staticmethod
+    def save_npy(fname, arr):
+        with open(fname, 'wb') as fh:
+            arr = np.save(fh, arr)
+        return arr
+
+    @staticmethod
+    def load_npy(fname):
+        with open(fname, 'rb') as fh:
+            arr = np.load(fh)
+        return arr
+
     def get_image(self, img_idx):
-        from PIL import Image
         fname = self.get_filename(img_idx)
         try:
-            return Image.open(fname).convert('RGB')
+            if fname[-4:] == '.npy':
+                return self.load_npy(fname)
+            from PIL import Image
+            img = Image.open(fname).convert('RGB')
         except Exception as e:
             raise IOError("Could not load image %s (reason: %s)" % (fname, str(e)))
+
+        npy = getattr(self, 'npy', False)
+        if not npy and not isinstance(npy, bool):
+            self.save_npy(fname[:-4] + '.npy', img)
+
+        return img
+
 
     def __repr__(self):
         res =  'Dataset: %s\n' % self.__class__.__name__
