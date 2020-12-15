@@ -13,7 +13,7 @@ from .pair_dataset import PairDataset, StillPairDataset
 class AachenImages (Dataset):
     """ Loads all images from the Aachen Day-Night dataset 
     """
-    def __init__(self, select='db day night', root='data/aachen', npy=False):
+    def __init__(self, select='db day night', root='data/aachen', rgb=True, npy=False):
         Dataset.__init__(self)
         self.root = root
         self.img_dir = 'images_upright'
@@ -77,11 +77,12 @@ class AachenPairs_StyleTransferDayNight (AachenImages_DB, StillPairDataset):
 class AachenPairs_OpticalFlow (AachenImages_DB, PairDataset):
     """ Image pairs from Aachen db with optical flow.
     """
-    def __init__(self, root='data/aachen', flow='optical_flow', npy=False, **kw):
+    def __init__(self, root='data/aachen', flow='optical_flow', rgb=True, npy=False, **kw):
         PairDataset.__init__(self)
-        AachenImages_DB.__init__(self, root=root, npy=npy, **kw)
+        AachenImages_DB.__init__(self, root=root, rgb=rgb, npy=npy, **kw)
         self.root_flow = os.path.join(root, flow)
         self.npy = npy
+        self.rgb = rgb
 
         # find out the subsest of valid pairs from the list of flow files
         flows = {f for f in os.listdir(os.path.join(self.root_flow, 'flow')) if f.endswith('.npy' if npy else '.png')}

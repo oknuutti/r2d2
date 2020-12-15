@@ -46,8 +46,11 @@ class Dataset(object):
         except Exception as e:
             raise IOError("Could not load image %s (reason: %s)" % (fname, str(e)))
 
+        rgb = getattr(self, 'rgb', True)
         npy = getattr(self, 'npy', False)
         if not npy and not isinstance(npy, bool):
+            if not rgb:
+                img = img.convert('L')
             self.save_npy(fname[:-4] + '.npy', img)
 
         return img
