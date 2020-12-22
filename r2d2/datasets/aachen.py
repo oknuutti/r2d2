@@ -89,6 +89,9 @@ class AachenPairs_OpticalFlow (AachenImages_DB, PairDataset):
         masks = {f for f in os.listdir(os.path.join(self.root_flow, 'mask')) if f.endswith('.npy' if npy else '.png')}
         assert flows == masks, 'Missing flow or mask pairs'
         
+        # make certain order is the same for reproducibility
+        flows = sorted(flows)
+        
         make_pair = lambda f: tuple(self.db_image_idxs[v] for v in f[:-4].split('_'))
         self.image_pairs = [make_pair(f) for f in flows]
         self.npairs = len(self.image_pairs)
@@ -130,7 +133,7 @@ class AachenPairs_OpticalFlow (AachenImages_DB, PairDataset):
             flow = self._flow2png(flow, fname)
 
         if not self.npy and not isinstance(self.npy, bool):
-            self.save_npy(fname[:-4] + '.npy', flow.astype(np.float16))
+            self.save_npy(fname[:-4] + '.npy', flow)
 
         return flow
     
