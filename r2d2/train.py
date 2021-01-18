@@ -134,7 +134,10 @@ if __name__ == '__main__':
         print(f"\n>> Starting epoch {epoch}...")
         train()
 
-    print(f"\n>> Saving model to {args.save_path}")
-    torch.save({'net': args.net, 'state_dict': net.state_dict()}, args.save_path)
+        print(f"\n>> Saving model to {args.save_path}")
+        torch.save({'net': args.net, 'state_dict': net.state_dict(), 'opt_state_dict': train.optimizer.state_dict(),
+                    'epoch': epoch, 'stats': train.stats}, '%s.%s' % (args.save_path, epoch + 1))
 
-
+        # old_file = '%s.%s' % (args.save_path, epoch - 1)
+        # if epoch > 2 and os.path.exists(old_file):
+        #     os.unlink(old_file)

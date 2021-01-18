@@ -25,6 +25,7 @@ class Trainer (nn.Module):
         self.loader = loader
         self.loss_func = loss
         self.optimizer = optimizer
+        self.stats = None
 
     def iscuda(self):
         return next(self.net.parameters()).device != torch.device('cpu')
@@ -43,7 +44,7 @@ class Trainer (nn.Module):
     def __call__(self):
         self.net.train()
         
-        stats = defaultdict(list)
+        self.stats = defaultdict(list)
         
         for iter,inputs in enumerate(tqdm(self.loader)):
             inputs = self.todevice(inputs)
@@ -58,15 +59,15 @@ class Trainer (nn.Module):
             self.optimizer.step()
             
             for key, val in details.items():
-                stats[key].append( val )
+                self.stats[key].append( val )
         
         print(" Summary of losses during this epoch:")
         mean = lambda lis: sum(lis) / len(lis)
-        for loss_name, vals in stats.items():
+        for loss_name, vals in self.stats.items():
             N = 1 + len(vals)//10
             print(f"  - {loss_name:20}:", end='')
             print(f" {mean(vals[:N]):.3f} --> {mean(vals[-N:]):.3f} (avg: {mean(vals):.3f})")
-        return mean(stats['loss']) # return average loss
+        return mean(self.stats['loss']) # return average loss
 
     def forward_backward(self, inputs):
         raise NotImplementedError()
