@@ -79,6 +79,7 @@ if __name__ == '__main__':
     parser.add_argument("--net", type=str, default=default_net, help='network architecture')
 
     parser.add_argument("--pretrained", type=str, default="", help='pretrained model path')
+#    parser.add_argument("--data-path", type=str, default="", help='path to data folder')
     parser.add_argument("--save-path", type=str, required=True, help='model save_path path')
     
     parser.add_argument("--loss", type=str, default=default_loss, help="loss function")

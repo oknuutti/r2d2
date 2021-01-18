@@ -23,7 +23,7 @@ class AachenImages (Dataset):
         self.imgs = []
         root = os.path.join(root, self.img_dir)
         for dirpath, _, filenames in os.walk(root):
-            r = dirpath[len(root)+1:]
+            r = dirpath[len(root):].lstrip(r'\/')
             if not(self.select & set(r.split('/'))): continue
             self.imgs += [os.path.join(r,f) for f in filenames if f.endswith('.npy' if npy else '.jpg')]
         
@@ -59,7 +59,7 @@ class AachenPairs_StyleTransferDayNight (AachenImages_DB, StillPairDataset):
         self.root = os.path.commonprefix((old_root, root))
         self.img_dir = ''
 
-        newpath = lambda folder, f: os.path.join(folder, f)[len(self.root)+1:]
+        newpath = lambda folder, f: os.path.join(folder, f.lstrip(r'\/'))[len(self.root):]
         self.imgs = [newpath(old_root, f) for f in self.imgs]
 
         self.image_pairs = []
