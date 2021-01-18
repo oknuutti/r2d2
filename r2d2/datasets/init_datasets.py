@@ -2,14 +2,13 @@
 # CC BY-NC-SA 3.0
 # Available only for non-commercial use
 
-from .pair_dataset import CatPairDataset, SyntheticPairDataset, TransformedPairs
-from .imgfolder import ImgFolder
+import sys
 
 from .web_images import RandomWebImages
 from .aachen import *
 
+
 # try to instanciate datasets
-import sys
 try:
     web_images = RandomWebImages(0, 52)
 except AssertionError as e:

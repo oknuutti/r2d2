@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--epochs", type=int, default=25, help='number of training epochs')
     parser.add_argument("--batch-size", "--bs", type=int, default=8, help="batch size")
-    parser.add_argument("--learning-rate", "--lr", type=str, default=1e-4)
+    parser.add_argument("--learning-rate", "--lr", type=float, default=1e-4)
     parser.add_argument("--weight-decay", "--wd", type=float, default=5e-4)
     
     parser.add_argument("--threads", type=int, default=8, help='number of worker threads')
@@ -100,6 +100,7 @@ if __name__ == '__main__':
 
     # Create data loader
     from .datasets import *
+    from .datasets.init_datasets import *
     db = [data_sources[key] for key in args.train_data]
     db = eval(args.data_loader.replace('`data`',','.join(db)).replace('\n',''))
     print("Training image database =", db)

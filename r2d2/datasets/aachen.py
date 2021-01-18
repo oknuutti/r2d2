@@ -59,7 +59,7 @@ class AachenPairs_StyleTransferDayNight (AachenImages_DB, StillPairDataset):
         self.root = os.path.commonprefix((old_root, root))
         self.img_dir = ''
 
-        newpath = lambda folder, f: os.path.join(folder, f)[len(self.root):]
+        newpath = lambda folder, f: os.path.join(folder, f)[len(self.root)+1:]
         self.imgs = [newpath(old_root, f) for f in self.imgs]
 
         self.image_pairs = []
