@@ -28,7 +28,7 @@ class AachenImages (Dataset):
             self.imgs += [os.path.join(r,f) for f in filenames if f.endswith('.npy' if npy else '.jpg')]
         
         self.nimg = len(self.imgs)
-        assert self.nimg, 'Empty Aachen dataset'
+        assert self.nimg, 'Empty Aachen dataset at path: %s' % (root,)
 
     def get_key(self, idx):
         return self.imgs[idx]
